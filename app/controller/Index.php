@@ -106,4 +106,25 @@ class Index
             return json($res);
         }
     }
+
+     /**
+    * 
+    * @return Json
+    */
+    public function test($ss): Json
+    {
+        $header = $info = Request::header();
+        try{
+            $res = ['code' => 0,
+            'data'=> $ss,
+            'header' => $header['x-openapi-seqid']];
+            return json($res);
+        }catch(Exception $e){
+            $res = ['code' => 1,
+            'data'=> 1 ,
+            'errorMsg'=>$e->getMessage()];
+
+            return json($res);
+        }
+    }
 }
