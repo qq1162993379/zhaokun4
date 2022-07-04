@@ -17,6 +17,7 @@ use app\model\Counters;
 use think\response\Html;
 use think\response\Json;
 use think\facade\Log;
+use think\Request;
 
 class Index
 {
