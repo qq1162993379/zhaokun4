@@ -17,7 +17,8 @@ use app\model\Counters;
 use think\response\Html;
 use think\response\Json;
 use think\facade\Log;
-use think\Request;
+use think\facade\Request;
+
 
 class Index
 {
@@ -134,12 +135,12 @@ class Index
     */
     public function test2(Request $request): Json
     {
-        $header = $info = Request::header();
+        $header = Request::header('x-openapi-seqid');
         try{
             $res = ['code' => 0,
-            'data'=> $ss,
-            'header' => $header['x-openapi-seqid'],
-            'req' => $request];
+            // 'data'=> $ss,
+            'header' => $header,
+            'req' => Request::param('ddd')];
             return json($res);
         }catch(Exception $e){
             $res = ['code' => 1,
