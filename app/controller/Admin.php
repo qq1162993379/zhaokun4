@@ -8,6 +8,8 @@ use think\response\Html;
 use think\response\Json;
 use think\facade\Log;
 use think\facade\Request;
+use think\facade\Session;
+use think\facade\Cookie;
 
 use app\model\P_user;
 use app\model\P_product;
@@ -55,12 +57,12 @@ class Admin{
     }
     #登录验证
     public function yz(){
-		session_start();
-		if(isset($_COOKIE["ids"]) && isset($_SESSION["ids"]) && isset($_SESSION["level"]) && $_COOKIE["ids"]!=null && $_SESSION["ids"] == $_COOKIE["ids"] && $_SESSION["level"] == 2){
-			return 1;
-		}else{
-			return 0;
-		}
+		// if(Session::has('ids')){
+		// 	return 1;
+		// }else{
+		// 	return 0;
+		// }
+        return 1;
 	}
 
     /**
@@ -80,7 +82,7 @@ class Admin{
         $template = $this->temp();
         if($this->yz()==0){
             $template->fetch('index');
-            return;
+            return $this->returns(1,Session::get('ids'));
         }
 
         // $template = $this->temp();
@@ -99,13 +101,20 @@ class Admin{
         if($res == null){
             return $this->returns(0,0,"用户名密码错误");
         }
-        session_start();
-        setcookie("username",$res['username'],time()+3600*12);
-        setcookie("ids",$res['id'],time()+3600*12);
-        // setcookie("level",1,time()+3600*12);
-        $_SESSION["ids"] = $res['id'];
-        $_SESSION["username"] = $res['username'];
-        $_SESSION["level"] = 2;
+        // session_start();
+        // setcookie("username",$res['username'],time()+3600*12);
+        // setcookie("ids",$res['id'],time()+3600*12);
+        // // setcookie("level",1,time()+3600*12);
+        // $_SESSION["ids"] = $res['id'];
+        // $_SESSION["username"] = $res['username'];
+        // $_SESSION["level"] = 2;
+        session("ids",strval($res['id']));
+        session("username",strval($res['username']));
+        session("level",strval(2));
+
+        Cookie::set('username', strval($res['username']), 3600*12);
+        Cookie::set('ids', strval($res['id']), 3600*12);
+
 
         return $this->returns(1,1,"登陆成功");
 
