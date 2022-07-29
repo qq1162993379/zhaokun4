@@ -108,12 +108,14 @@ class Admin{
         // $_SESSION["ids"] = $res['id'];
         // $_SESSION["username"] = $res['username'];
         // $_SESSION["level"] = 2;
-        session("ids",strval($res['id']));
-        session("username",strval($res['username']));
-        session("level",strval(2));
 
-        Cookie::set('username', strval($res['username']), 3600*12);
-        Cookie::set('ids', strval($res['id']), 3600*12);
+        
+        // session("ids",strval($res['id']));
+        // session("username",strval($res['username']));
+        // session("level",strval(2));
+
+        // Cookie::set('username', strval($res['username']), 3600*12);
+        // Cookie::set('ids', strval($res['id']), 3600*12);
 
 
         return $this->returns(1,1,"登陆成功");
