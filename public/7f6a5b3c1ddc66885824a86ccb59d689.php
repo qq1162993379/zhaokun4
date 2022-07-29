@@ -1,0 +1,355 @@
+<?php /*a:1:{s:41:"../app/view/admin/product_price_page.html";i:1658501877;}*/ ?>
+<!DOCTYPE html>
+<head>
+    <link rel="stylesheet" type="text/css" href="/static/css/easyui/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/easyui/icon.css">
+    <!-- <link rel="stylesheet" type="text/css" href="__CSS__/myStyle.css"> -->
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/static/js/easyui-lang-zh_CN.js"></script>
+    <script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
+    
+</head>
+<body style="padding:0px;">
+    
+    <table id="dg" title="产品价格" class="easyui-datagrid" style="width:100%;height:auto"
+            url="product_price_list"
+            toolbar="#toolbar"
+            rownumbers="true" fitColumns="true" fit="true" singleSelect="true">
+        <thead>
+            <tr>
+                <th field="id" width="50">Id</th>
+                <!-- <th field="names" width="50">产品名</th> -->
+                <th field="guige" width="50">规格</th>
+                <th field="zhonglei" width="50">种类</th>
+                
+                <th field="danwei_name" width="50">单位</th>
+                <th field="houdu" width="50">厚度</th>
+                <th field="danjia" width="50">单价</th>
+
+                <th field="danwei" width="50">单位</th>
+                <th field="guige_id" width="50" hidden="true">规格id</th>
+                <th field="houdu_id" width="50" hidden="true">厚度id</th>
+                <th field="zhonglei_id" width="50" hidden="true">种类id</th>
+
+            </tr>
+        </thead>
+    </table>
+    <div id="toolbar">
+        <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="cc_add()">新增</a> 
+        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="cc_del()">删除</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="cc_update()">修改</a>
+
+        
+        <!-- <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="tj()">查看筛选内容的统计信息</a> -->
+
+        <!-- <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="destroyUser()">删除</a> -->
+        
+    </div>
+
+    <div id="win">
+        <!-- <p id="win_p_1">主瓦尺寸新增</p> -->
+        <form id="win_form" onsubmit="return false;">
+            产品名：<span>主瓦</span>
+            规格
+            <select name="win_guige" id="win_guige_d"></select><br />
+            厚度<select name="win_houdu" id="win_houdu_d"></select><br />
+            单位
+            <select name="win_danwei" id="win_danwei_d">
+                <option value="1">米</option>
+                <option value="2">平方米</option>
+            </select>
+            
+            <br />
+            种类<select name="win_zhonglei" id="win_zhonglei_d"></select><br />
+            单价<input  style="width:300px" id="win_danjia"><br />
+    
+            <button id="win_p_button">确定</button>
+    
+        </form>
+        
+    </div>
+
+    <div id="win2">
+        规格 : <span id="win2_p_guige"></span><br />
+        种类 : <span id="win2_p_zhonglei"></span><br />
+        厚度 : <span id="win2_p_houdu"></span><br />
+        单位 : <span id="win2_p_danwei"></span><br />
+        单价<input  style="width:300px" id="win2_p_danjia"><br />
+        <button id="win2_p_button">确定</button>
+    </div>
+
+
+    <script>
+    //功能函数 给下拉列表添加选项卡
+    function optionChildAdd(data,ids,values,names){
+        var obj = document.getElementById(ids);
+        for(var i=0;i<data.length;i++){
+            var ls = document.createElement("option");
+            ls.value = data[i][values];
+            ls.innerHTML = data[i][names];
+            obj.appendChild(ls);
+        }
+    }
+    (function(){//初始化详细信息面板
+        $('#win').window({
+            width:600,
+            height:400,
+            modal:true,
+            title:"主瓦价格添加"
+            });
+        $('#win').window('close');
+        //初始化各个选项卡
+        $.post('product_price_option',{},function(res){
+            if(res.code != 1){
+                $.messager.show({	// show error message
+                    title: 'Error',
+                    msg: res.msg,
+                    showSpeed:2000
+                });
+            }else{
+                //对索引项目的html进行操作
+                var guiged = res.data.guige;
+                var houdud = res.data.houdu;
+                var zhonglei = res.data.zhonglei;
+                
+                optionChildAdd(guiged,"win_guige_d","id","names");
+                optionChildAdd(houdud,"win_houdu_d","id","houdu");
+                optionChildAdd(zhonglei,"win_zhonglei_d","id","leibie");
+            }
+        });
+    })();
+
+    (function(){
+        $('#win2').window({
+            width:600,
+            height:300,
+            modal:true,
+            title:"主瓦价格修改"
+            });
+        $('#win2').window('close');
+    })();
+
+    //创建动态修改窗口
+    function wins(func){
+        // alert(111);
+        $("#win").window('open');
+        $('#win_p_button').unbind();
+        $('#win_p_button').bind('click',function(){
+            var forms = document.getElementById("win_form");
+            var dat = {
+                guige_id:forms.win_guige.value,
+                houdu_id:forms.win_houdu.value,
+                danwei:forms.win_danwei.value,
+                zhonglei_id:forms.win_zhonglei.value,
+                danjia:forms.win_danjia.value
+            };
+            func(dat);
+            $("#win").window('close');
+        });
+    }
+
+    function wins2(func){
+        $("#win2").window('open');
+        $('#win2_p_button').unbind();
+        $('#win2_p_button').bind('click',function(){
+            var dat = {
+                danjia:$('#win2_p_danjia').val()
+            };
+            func(dat);
+            $("#win2").window('close');
+        });
+    }
+    
+    function cc_add(){//主瓦尺寸新增
+        wins(function(r){
+            console.log(r);
+            $.post('product_prict_add',r,function(res){
+                if(res.code != 1){
+                    $.messager.show({	// show error message
+                        title: 'Error',
+                        msg: res.msg,
+                        showSpeed:2000
+                    });
+                }else{
+                    $.messager.show({	// show error message
+                        title: 'Success',
+                        msg: res.msg,
+                        showSpeed:2000
+                    });
+                    $('#dg').datagrid('reload');
+                }
+            });
+        });
+    }
+    function cc_del(){//主瓦尺寸删除
+        var row = $('#dg').datagrid('getSelected');
+        if (row){
+            $.messager.confirm('提示','确认删除吗?',function(r){
+                if (r){
+                    $.post('product_prict_del',{id:row.id},function(res){
+                        if(res.code != 1){
+                            $.messager.show({	// show error message
+                                title: 'Error',
+                                msg: res.msg,
+                                showSpeed:2000
+                            });
+                        }else{
+                            $.messager.show({	// show error message
+                                title: 'Success',
+                                msg: res.msg,
+                                showSpeed:2000
+                            });
+                            $('#dg').datagrid('reload');
+                        }
+                    });
+                }
+            });
+        }
+    }
+    function cc_update(){
+        var row = $('#dg').datagrid('getSelected');
+        if(row){
+            $("#win2_p_guige").html(row.guige);
+            $("#win2_p_houdu").html(row.houdu);
+            $("#win2_p_zhonglei").html(row.zhonglei);
+            $("#win2_p_danwei").html(row.danwei_name);
+            $("#win2_p_danjia").val(row.danjia);
+            wins2(function(r){
+                if(r){
+                    r.id = row.id;
+                    $.post('product_prict_update',r,function(res){
+                        if(res.code != 1){
+                            $.messager.show({	// show error message
+                                title: 'Error',
+                                msg: res.msg,
+                                showSpeed:2000
+                            });
+                        }else{
+                            $.messager.show({	// show error message
+                                title: 'Success',
+                                msg: res.msg,
+                                showSpeed:2000
+                            });
+                            $('#dg').datagrid('reload');
+                        }
+                    });
+                }
+            });
+        }else{
+            $.messager.show({	// show error message
+                title: 'Error',
+                msg: "未选择任何一个规格",
+                showSpeed:2000
+            });
+        }
+    }
+
+    function pro_edit(){//修改，吊起一个窗口
+        var row = $('#dg').datagrid('getSelected');
+        if (row){
+            $("#win_p_names").html(row.names);
+            $("#win_p_id").val(row.id);
+            $("#win_p_guige").val(row.guige);
+            $("#win_p_danwei").val(row.danwei);
+            $("#win_p_danjia").val(row.danjia);
+            wins(function(r){
+                if (r){
+                    $.post('productupdate',r,function(res){
+                        if(res.code != 1){
+                            $.messager.show({	// show error message
+                                title: 'Error',
+                                msg: res.msg,
+                                showSpeed:2000
+                            });
+                        }else{
+                            $.messager.show({	// show error message
+                                title: 'Success',
+                                msg: res.msg,
+                                showSpeed:2000
+                            });
+                            $('#dg').datagrid('reload');
+                        }
+                    });
+                }
+            });
+        }else{
+            $.messager.show({	// show error message
+                title: 'Error',
+                msg: "未选择任何一个产品",
+                showSpeed:2000
+            });
+        }
+    }
+    function pro_paixu(a){
+    //productpaixu
+        var row = $('#dg').datagrid('getSelected');
+        if(row){
+            $.post('productpaixu',{id:row.id,paixu:row.paixu,caozuo:a},function(res){
+                if(res.code != 1){
+                    $.messager.show({	// show error message
+                        title: 'Error',
+                        msg: res.msg,
+                        showSpeed:2000
+                    });
+                }else{
+                    $.messager.show({	// show error message
+                        title: 'Success',
+                        msg: res.msg,
+                        showSpeed:2000
+                    });
+                    $('#dg').datagrid('reload');
+                }
+            });
+        }else{
+            $.messager.show({	// show error message
+                title: 'Error',
+                msg: "未选择任何一个产品",
+                showSpeed:2000
+            });
+        }
+        
+    }
+
+
+
+    function destroyUser(){
+        var row = $('#dg').datagrid('getSelected');
+        if (row){
+            $.messager.confirm('提示','确认删除吗?',function(r){
+                if (r){
+                    $.post('{:U(del_tg)}',{id:row.Id},function(result){
+                        var result = eval('('+result+')');
+                        if (!result.errorMsg){
+                            $('#dg').datagrid('reload');	// reload the user data
+                        } else {
+                            $.messager.show({	// show error message
+                                title: 'Error',
+                                msg: result.errorMsg
+                            });
+                        }
+                    },'json');
+                }
+            });
+        }
+    }
+    function tg(){
+        var row = $('#dg').datagrid('getSelected');
+        if (row){
+            $.messager.confirm('提示','是否进入修改界面',function(r){
+                if (r){
+                    var forms=document.createElement("form");
+                    forms.action="{:U(xiugai_tg)}";
+                    var inps=document.createElement("input");
+                    inps.name='id';
+                    inps.value=row.id;
+                    forms.appendChild(inps);
+                    forms.method="post";
+                    forms.submit();
+                }
+            });
+        }
+    }
+    </script>
+    </body>
+</body>

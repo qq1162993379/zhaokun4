@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<head>
+    <link rel="stylesheet" type="text/css" href="/static/css/easyui/easyui.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/easyui/icon.css">
+    <!-- <link rel="stylesheet" type="text/css" href="__CSS__/myStyle.css"> -->
+    <script type="text/javascript" src="/static/js/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.easyui.min.js"></script>
+    <script type="text/javascript" src="/static/js/easyui-lang-zh_CN.js"></script>
+    <style type="text/css">
+        .ddxx{
+            border-spacing: 0;/*把单元格间隙设置为0*/
+            border-collapse: collapse;
+        }
+        .ddxx td{
+            border: 1px solid black;
+        }
+
+
+        .ddmx{
+            border-spacing: 0;/*把单元格间隙设置为0*/
+            border-collapse: collapse;
+        }
+
+        .ddmx tr td{
+            border : 1px solid black;
+            width: 120px;
+        }
+        .ddmxt{
+            border-spacing: 0;/*把单元格间隙设置为0*/
+            border-collapse: collapse;
+        }
+
+        .ddmxt tr td{
+            border: 1px solid black;
+            width: 120px;
+        }
+
+
+
+        .ddmx2{
+            border-spacing: 0;/*把单元格间隙设置为0*/
+            border-collapse: collapse;
+        }
+
+        .ddmx2 tr td{
+            border: 1px solid black;
+            width: 240px;
+        }
+        .ddmxt2{
+            border-spacing: 0;/*把单元格间隙设置为0*/
+            border-collapse: collapse;/*设置单元格的边框合并为1*/
+        }
+        .ddmxt2 tr td{
+            border: 1px solid black;
+            width: 240px;
+        }
+
+    </style>
+</head>
+<body style="padding:0px;">
+    
+    <table id="dg" title="订单管理" class="easyui-datagrid" style="width:100%;height:auto"
+            url="dingdanget"
+            toolbar="#toolbar"
+            rownumbers="true" fitColumns="true" fit="true" singleSelect="true" pagination="true">
+        <thead>
+            <tr>
+                <th field="id" width="50" hidden="true">Id</th>
+                <th field="username" width="50">用户名</th>
+                <th field="user_id" width="50" hidden="true">用户id</th>
+                <th field="tel" width="50">用户电话</th>
+                <th field="money1" width="50">用户自定金额</th>
+                <th field="money2" width="50">实际订单金额</th>
+                <th field="times" width="50">下单时间</th>
+                <th field="zt" width="50">订单状态</th>
+                <th field="qhm" width="50">取货码</th>
+                <th field="infor" width="50">查看详细</th>
+                <th field="clicks" width="50">订单确认</th>
+            </tr>
+        </thead>
+    </table>
+    <div id="toolbar">
+        <!-- <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="tg()">修改</a> -->
+
+        <!-- <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="destroyUser()">删除</a> -->
+        <form onsubmit="return false;">
+            订单索引&nbsp;
+            <font color="black">全部</font><input type="radio" name="shaixuan" value="1" onclick="suoyin(null)" checked="true" />&nbsp;
+            <font color="red">未确认</font><input type="radio" name="shaixuan" value="1" onclick="suoyin(1)" />&nbsp;
+            <font color="yellow">备货中</font><input type="radio" name="shaixuan" value="2" onclick="suoyin(2)" />&nbsp;
+            <font color="green">待取货</font><input type="radio" name="shaixuan" value="3" onclick="suoyin(3)" />&nbsp;
+            <font color="blue">已取货</font><input type="radio" name="shaixuan" value="4" onclick="suoyin(4)" />&nbsp;
+        </form>
+    
+        <form id="chaxunform" onsubmit="return false;">
+            订单查询(查完记得选中“关闭”)&nbsp;
+            <font color="red">启用</font><input type="radio" name="kongzhi" value="1" onclick="suoyin2(1)" />&nbsp;
+            <font color="black">关闭</font><input type="radio" name="kongzhi" value="2" onclick="suoyin2(0)" checked="true"/>&nbsp;
+            查询内容<input type="text" name="neirong" />&nbsp;
+            <font color="black">姓名</font><input type="radio" name="shaixuan2" value="1"  />&nbsp;
+            <font color="black">电话</font><input type="radio" name="shaixuan2" value="2"  />&nbsp;
+            <font color="black">取货码</font><input type="radio" name="shaixuan2" value="3" checked="true" />&nbsp;
+            <button onclick="chaxun(this)">查询</button>
+        </form>
+        
+
+        
+    </div>
+
+    <div id="win">
+        <p id="win_p_1">订单信息</p>
+        <table class="ddxx" id="win_table_1">
+            <tr>
+                <td>姓名</td><td id="win_td_names"></td>
+                <td>电话</td><td id="win_td_tel"></td>
+                <td>下单时间</td><td id="win_td_times"></td>
+            </tr>
+            </tr>
+                <td>状态</td><td id="win_td_zt"></td>
+                <td>取货码</td><td id="win_td_qhm"></td>
+                <td>订单金额</td><td id="win_td_money2"></td>
+            </tr>
+            <tr>
+                <td>备注</td><td colspan="5" id="win_td_beizhu"></td>
+            </tr>
+        </table>
+
+        <p id="win_p_2">订单明细</p>
+        <table class="ddmx">
+            <tr>
+                <td>产品名称</td>
+                <td>规格</td>
+                <td>单位</td>
+                <td>数量</td>
+                <td>单价</td>
+                <td>金额</td>
+            </tr>
+        </table>
+        
+        <table id="win_table_2" class="ddmxt"></table>
+
+        <p id="win_p_3">主瓦明细</p>
+        <table class="ddmx2">
+            <tr>
+                <td>长度</td>
+                <td>块数</td>
+                <td>平方米</td>
+            </tr>
+        </table>
+        
+        <table id="win_table_3" class="ddmxt2"></table>
+
+    </div>
+
+    <!-- <div id="win2">
+        请输入取货码进行确认<input id="qhmqr" />
+    </div> -->
+
+    <script>
+
+    //全局筛选状态控制变量
+    data = {
+        username: null,
+        tel:null,
+        qhm:null,
+        zt:null
+    };
+
+    (function(){
+        $('#win').window({
+            width:600,
+            height:400,
+            modal:true
+            });
+        $('#win').window('close');
+    })();
+    
+    function chakanxiangqing(did){//查看订单详情，生成一个浮动面板
+        // alert(1);
+        $.post('dingdan_xq',{id:did},function(result){
+            // alert(result);
+            // var res = eval('('+result+')');
+            var res = result;
+            console.log(res);
+            if(res.code != 1){
+                $.messager.show({	// show error message
+                    title: 'Error',
+                    msg: res.msg,
+                    showSpeed:2000
+                });
+            }else{
+                var dingdan = res.data.dingdan;
+                var mingxi = res.data.mingxi;
+                var zhuwa = res.data.zhuwa;
+                console.log(dingdan);
+                
+                //面板数据更新
+                //订单信息
+                $("#win_td_names").html(dingdan.names);
+                $("#win_td_tel").html(dingdan.tel);
+                $("#win_td_times").html(dingdan.times) ;
+                $("#win_td_zt").html(dingdan.zt);
+                $("#win_td_qhm").html(dingdan.qhm);
+                $("#win_td_money2").html(dingdan.money2);
+                $("#win_td_beizhu").html(dingdan.beizhu);
+                //订单明细
+                var mingxitxt = "";
+                for(var i=0;i<mingxi.length;i++){
+                    mingxitxt += "<tr>";
+                    mingxitxt += "<td>"+mingxi[i].pro_names+"</td>";
+                    mingxitxt += "<td>"+mingxi[i].guige+"</td>";
+                    mingxitxt += "<td>"+mingxi[i].danwei+"</td>";
+                    mingxitxt += "<td>"+mingxi[i].numbers+"</td>";
+                    mingxitxt += "<td>"+mingxi[i].money2+"</td>";
+                    mingxitxt += "<td>"+Math.ceil(mingxi[i].money2*mingxi[i].numbers*100)/100+"</td>";
+                    mingxitxt += "</tr>";
+                }
+                //主瓦明细
+                var zhuwatxt = "";
+                for(var i=0;i<zhuwa.length;i++){
+                    zhuwatxt += "<tr>";
+                    zhuwatxt += "<td>"+zhuwa[i].changdu+"</td>";
+                    zhuwatxt += "<td>"+zhuwa[i].numbers+"</td>";
+                    zhuwatxt += "<td>"+zhuwa[i].changdu*zhuwa[i].numbers*1.05+"</td>";
+                    zhuwatxt += "</tr>";
+                }
+
+                $("#win_table_2").html(mingxitxt);
+                $("#win_table_3").html(zhuwatxt);
+
+
+                $('#win').window('open');
+            }
+        });
+    }
+
+    function dd_jieshou(did){
+        //接受订单
+        $.post('dingdan_jieshou',{id:did},function(res){
+            if(res.code != 1){
+                $.messager.show({	// show error message
+                    title: 'Error',
+                    msg: res.msg,
+                    showSpeed:2000
+                });
+            }else{
+                $.messager.show({	// show error message
+                    title: 'Success',
+                    msg: res.msg,
+                    showSpeed:2000
+                });
+                $('#dg').datagrid('reload');
+            }
+        });
+    }
+    function dd_kequhuo(did){//状态变更为可取货
+        $.post('dingdan_kequhuo',{id:did},function(res){
+            if(res.code != 1){
+                $.messager.show({	// show error message
+                    title: 'Error',
+                    msg: res.msg,
+                    showSpeed:2000
+                });
+            }else{
+                $.messager.show({	// show error message
+                    title: 'Success',
+                    msg: res.msg,
+                    showSpeed:2000
+                });
+                $('#dg').datagrid('reload');
+            }
+        });
+    }
+    function dd_quhuo(did){
+        $.messager.prompt('提货确认', '请输入取货码进行确认', function(r){
+            if (r){
+                $.post('dingdan_quhuo',{id:did,qhm:r},function(res){
+                    if(res.code != 1){
+                        $.messager.show({	// show error message
+                            title: 'Error',
+                            msg: res.msg,
+                            showSpeed:2000
+                        });
+                    }else{
+                        $.messager.show({	// show error message
+                            title: 'Success',
+                            msg: res.msg,
+                            showSpeed:2000
+                        });
+                        $('#dg').datagrid('reload');
+                    }
+                });
+            }
+        });
+    }
+    function suoyin(zts){
+        data.zt = zts;
+        $('#dg').datagrid({
+            queryParams: data
+        });
+        $('#dg').datagrid('reload');
+    }
+
+    function suoyin2(k){
+        if(k==0){
+            data.username = null;
+            data.tel = null;
+            data.qhm = null;
+
+            $('#dg').datagrid({
+                queryParams: data
+            });
+        }
+    }
+    function chaxun(obj){
+        var fm = document.getElementById("chaxunform");
+        var opens = fm.kongzhi.value;
+        if(opens==2){
+            //关闭
+            alert("查询未启用");
+            return;
+        }
+        var nr = fm.neirong.value;
+        var sx = fm.shaixuan2.value;
+        data.username = null;
+        data.tel = null;
+        data.qhm = null;
+        // alert(sx);
+        // alert(nr);
+        if(sx == 1){
+            data.username = nr;
+        }else if(sx == 2){
+            data.tel = nr;
+        }else if(sx == 3){
+            data.qhm = nr;
+        }
+        console.log(data);
+        $('#dg').datagrid({
+            queryParams: data
+        });
+        $('#dg').datagrid('reload');
+    }
+
+
+    function destroyUser(){
+        var row = $('#dg').datagrid('getSelected');
+        if (row){
+            $.messager.confirm('提示','确认删除吗?',function(r){
+                if (r){
+                    $.post('{:U(del_tg)}',{id:row.Id},function(result){
+                        var result = eval('('+result+')');
+                        if (!result.errorMsg){
+                            $('#dg').datagrid('reload');	// reload the user data
+                        } else {
+                            $.messager.show({	// show error message
+                                title: 'Error',
+                                msg: result.errorMsg
+                            });
+                        }
+                    },'json');
+                }
+            });
+        }
+    }
+    function tg(){
+        var row = $('#dg').datagrid('getSelected');
+        if (row){
+            $.messager.confirm('提示','是否进入修改界面',function(r){
+                if (r){
+                    var forms=document.createElement("form");
+                    forms.action="{:U(xiugai_tg)}";
+                    var inps=document.createElement("input");
+                    inps.name='id';
+                    inps.value=row.id;
+                    forms.appendChild(inps);
+                    forms.method="post";
+                    forms.submit();
+                }
+            });
+        }
+    }
+    </script>
+    </body>
+</body>

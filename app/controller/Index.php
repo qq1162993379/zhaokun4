@@ -19,6 +19,8 @@ use think\response\Json;
 use think\facade\Log;
 use think\facade\Request;
 
+use app\model\P_user;
+
 
 class Index
 {
@@ -149,5 +151,36 @@ class Index
 
             return json($res);
         }
+    }
+    /**
+    * 
+    * @return Json
+    */
+    public function test_ins(){
+        $opid = Request::header('x-openapi-seqid');
+        
+        #先做查询
+        $users = new P_user;
+        $fin = $users->where('opid',$opid)->find();
+        if($fin == null){
+            $datas = ['opid'=>$opid,'names'=>'','tel'=>''];
+            $res0 = $users->save($datas);
+            $res = [
+                'code'=>1,
+                'res' => $res0
+            ];
+            return json($res);
+        }else{
+            $datas = ['opid'=>$opid,'names'=>'','tel'=>''];
+            // $res0 = $users->save($datas);
+            $res0 = $users->where('id',$fin['id'])->update($datas);
+            $res = [
+                'code'=>2,
+                'res' => $res0
+            ];
+            return json($res);
+        }
+
+        
     }
 }
