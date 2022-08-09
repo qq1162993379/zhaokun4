@@ -18,6 +18,10 @@ use app\model\P_guige;
 use app\model\P_user_price;
 use app\model\P_zhuwa_chicun;
 use app\model\P_dingdan_houdu; 
+use app\model\P_dingdan_up;
+use app\model\P_dingdan_mingxi_up;
+use app\model\P_dingdan_zhuwa_up;
+
 
 class Home{
 
@@ -229,6 +233,27 @@ class Home{
         $times = time();
         $uid = $fin['id'];
         $dingdan = new P_dingdan;
+
+        //这里进行改变，传过来的是规格的id
+        $postguige = $data['guige'];
+        $dd_guige = new P_guige;
+        $data_guige = $dd_guige->where('id',$postguige)->find();
+        $guigename = $data_guige['names'];
+        $guigekuandu = $data_guige['kuandu'];
+
+        //这里添加一个订单号生成
+        $timebs1 = strtotime(date("Y-m-d",time())." 00:00:00");
+        $xuhao = $dingdan->where([['times','<',$times],['times','>',$timebs1]])->count();
+        $xuhao += 1;
+        //把序号做成三位数
+        if($xuhao<10){
+            $xuhao = '00'.$xuhao;
+        }else if($xuhao<100){
+            $xuhao = '0'.$xuhao;
+        }
+        $dingdanhao = "ZSJC-".date("Ymd",$times)."-".$xuhao;
+
+
         $dddata0 = [
             'user_id'=>$uid,
             'times'=>$times,
@@ -238,12 +263,14 @@ class Home{
             'jz' =>1,
             'qhm' =>'',
             'beizhu'=>$data['beizhu'],
-            'zw_guige'=>$data['guige'],
+            'zw_guige'=>$guigename,
+            'zw_guige2'=>$guigekuandu,
             'zw_houdu'=>$data['houdu'],
             'zw_yanse'=>$data['yanse'],
             'zw_paixu'=>$data['paixu'],
             'zw_hebing'=>$data['hebing'],
-            'zw_danwei' =>$data['danwei']
+            'zw_danwei' =>$data['danwei'],
+            'dingdanhao'=>$dingdanhao
 
 
         ];
@@ -262,6 +289,7 @@ class Home{
             $mingxi_data[$i]['money2'] = $pro_data[$mingxi[$i]['pro_id']]['danjia'];
             $mingxi_data[$i]['guige'] = $pro_data[$mingxi[$i]['pro_id']]['guige'];
             $mingxi_data[$i]['danwei'] = $pro_data[$mingxi[$i]['pro_id']]['danwei'];
+            $mingxi_data[$i]['zmoney'] = number_format($mingxi[$i]['numbers']*$pro_data[$mingxi[$i]['pro_id']]['danjia'],4);
         }
         //构建主瓦存储对象
         //有关的字段为 paixu hebing
@@ -332,6 +360,162 @@ class Home{
             return $this->returns(2,0,"订单提交错误");
         }
     }
+
+    /**
+     * 订单修改
+     * @return Json
+     */
+    public function dingdanupdate():Json{
+        $fin =$this->getuserid();
+        if($fin==null){
+            return $this->returns(3,0,"不存在用户");
+        }
+
+        $did = Request::param('did');
+        //获取产品的详细信息列表
+        $pro = new P_product;
+        $pro_data0 = $pro->select();
+        $pro_data = [];
+        for($i = 0; $i < count($pro_data0); $i++){//做一个根据pro_id的索引，方便后续使用
+            $pro_data[$pro_data0[$i]['id']] = $pro_data0[$i];
+        }
+        //接受提交的订单数据，收到的数据格式为json，经过base64编码，形式为：{mingxi:[{pro_id:xxx,pro_names:xxx,numbers:xxx,money1:xxx},{},...,{}],zhuwa:[{changdu:xx,numbers:xx},{},...,{}]}
+        $bm = base64_decode(Request::param('data'));
+        $data = json_decode($bm,true);
+
+        $mingxi = $data['mingxi'];
+        $zhuwa = $data['zhuwa'];
+        //计算订单金额和实际金额
+        $money1 = 0;
+        $money2 = 0;
+        for($i = 0; $i < count($mingxi); $i++){
+            $prid = $mingxi[$i]['pro_id'];
+            $dmoney1 = $mingxi[$i]['money1'];
+            $money1 += $dmoney1*$mingxi[$i]['numbers'];
+            $money2 += $pro_data[$prid]['danjia']*$mingxi[$i]['numbers'];
+        }
+
+        //先生成新的订单号
+        $times = time();
+        $uid = $fin['id'];
+        $dingdan = new P_dingdan_up;
+
+        //这里进行改变，传过来的是规格的id
+        $postguige = $data['guige'];
+        $dd_guige = new P_guige;
+        $data_guige = $dd_guige->where('id',$postguige)->find();
+        $guigename = $data_guige['names'];
+        $guigekuandu = $data_guige['kuandu'];
+
+        $dddata0 = [
+            'user_id'=>$uid,
+            'dd_id'=>$did,
+            'times'=>$times,
+            'zt' => 1,
+            'money1' =>$money1,
+            'money2' =>$money2,
+            'jz' =>1,
+            'qhm' =>'',
+            'beizhu'=>$data['beizhu'],
+            'zw_guige'=>$guigename,
+            'zw_guige2'=>$guigekuandu,
+            'zw_houdu'=>$data['houdu'],
+            'zw_yanse'=>$data['yanse'],
+            'zw_paixu'=>$data['paixu'],
+            'zw_hebing'=>$data['hebing'],
+            'zw_danwei' =>$data['danwei']
+        ];
+        $ddid = $dingdan->insertGetId($dddata0);#修改订单号$ddid
+
+
+        //构建明细存储对象
+        $mingxi_data = [];#订单明细存储数据
+        $zhuwa_data = [];#主瓦存储数据
+        for($i = 0; $i < count($mingxi); $i++){
+            $mingxi_data[$i]['pro_id'] = $mingxi[$i]['pro_id'];
+            $mingxi_data[$i]['pro_names'] = $pro_data[$mingxi[$i]['pro_id']]['names'];
+            $mingxi_data[$i]['numbers'] = $mingxi[$i]['numbers'];
+            $mingxi_data[$i]['money1'] = $mingxi[$i]['money1'];
+            $mingxi_data[$i]['dd_id'] = $did;
+            $mingxi_data[$i]['money2'] = $pro_data[$mingxi[$i]['pro_id']]['danjia'];
+            $mingxi_data[$i]['guige'] = $pro_data[$mingxi[$i]['pro_id']]['guige'];
+            $mingxi_data[$i]['danwei'] = $pro_data[$mingxi[$i]['pro_id']]['danwei'];
+            $mingxi_data[$i]['zmoney'] = number_format($mingxi[$i]['numbers']*$pro_data[$mingxi[$i]['pro_id']]['danjia'],4);
+        }
+        //构建主瓦存储对象
+        //有关的字段为 paixu hebing
+        for($i = 0; $i < count($zhuwa); $i++){
+            $zhuwa_data[$i]['dd_id'] = $did;
+            $zhuwa_data[$i]['changdu'] = $zhuwa[$i]['changdu'];
+            $zhuwa_data[$i]['numbers'] = $zhuwa[$i]['numbers'];
+        }
+        if($data['hebing'] == 1){//长度通项合并
+            for($i = 0; $i < count($zhuwa_data)-1; $i++){
+                if($zhuwa_data[$i]['numbers']!=0){//当前i不等于0
+                    for($j=$i+1;$j<count($zhuwa_data);$j++){
+                        if($zhuwa_data[$i]['changdu']==$zhuwa_data[$j]['changdu']){
+                            $zhuwa_data[$i]['numbers'] += $zhuwa_data[$j]['numbers'];
+                            $zhuwa_data[$j]['numbers'] = 0;
+                        }
+                    }
+                }
+                
+            }
+            $zhuwa_data_ls = [];
+            $j = 0;
+            for($i = 0; $i < count($zhuwa_data); $i++){
+                if($zhuwa_data[$i]['numbers']!=0){//当前i不等于0
+                    $zhuwa_data_ls[$j] = $zhuwa_data[$i];
+                    $j += 1;
+                }
+            }
+            $zhuwa_data = $zhuwa_data_ls;
+        }
+        if($data['paixu'] == 1){//长度排序
+            for($i = 0; $i < count($zhuwa_data); $i++){
+                for($j=$i+1;$j<count($zhuwa_data);$j++){
+                    if($zhuwa_data[$j]['changdu']<$zhuwa_data[$i]['changdu']){
+                        $ls = $zhuwa_data[$i];
+                        $zhuwa_data[$i] = $zhuwa_data[$j];
+                        $zhuwa_data[$j] = $ls;
+                    }
+                }
+            }
+        }
+        //计算主瓦尺寸 多少米或者多少平方米
+        $guige = new P_guige;
+        $zwcc = $guige->where("names",$data['guige'])->find();//前台传过来的是名称
+        $kuandu = $zwcc['kuandu'];#主瓦宽度
+        
+        for($i = 0; $i < count($zhuwa_data); $i++){
+            $zhuwa_data[$i]['chicun1'] = $zhuwa_data[$i]['changdu']*$zhuwa_data[$i]['numbers'];
+        }
+        
+        for($i = 0; $i < count($zhuwa_data); $i++){
+            $zhuwa_data[$i]['chicun2'] = $zhuwa_data[$i]['changdu']*$zhuwa_data[$i]['numbers']*$kuandu;
+        }
+        
+        
+
+
+        //存储
+        $ddmx = new P_dingdan_mingxi_up;
+        $res1 = $ddmx->insertAll($mingxi_data);
+        
+        $zw = new P_dingdan_zhuwa_up;
+        $res2 = $zw->insertAll($zhuwa_data);
+
+        if($res1 == count($mingxi) && $res2 == count($zhuwa_data)){
+            return $this->returns(1,$ddid);
+        }else{
+            return $this->returns(2,0,"订单提交错误");
+        }
+    }
+
+
+
+
+
     /**
      * @return Json
      * 用户订单列表获取

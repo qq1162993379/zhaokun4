@@ -12,5 +12,5 @@ class P_dingdan_zhuwa_up extends Model
     public $dd_id;
     public $changdu;
     public $numbers;
-    public $times2;
+    // public $times2;
 }

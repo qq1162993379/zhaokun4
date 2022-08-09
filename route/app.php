@@ -33,6 +33,8 @@ Route::get('/index/userinfo', 'home/userinfo');
 Route::post('/index/dingdan', 'home/dingdan');
 Route::get('/index/dingdanget', 'home/dingdanget');
 Route::post('/index/dingdanxq', 'home/dingdanxq');
+Route::post('/index/dingdanupdate', 'home/dingdanupdate');
+
 
 
 //test
@@ -116,6 +118,21 @@ Route::post('/admin/product_prict_update', 'admin/product_prict_update');
 
     //订单修改明细
 Route::post('/admin/dd_xiugai_jl', 'admin/dd_xiugai_jl');
+Route::post('/admin/dingdan_xg_qr', 'admin/dingdan_xg_qr');
+Route::post('/admin/dingdan_xg_add_mx', 'admin/dingdan_xg_add_mx');
+Route::post('/admin/dingdan_xg_add_zw', 'admin/dingdan_xg_add_zw');
+Route::post('/admin/dingdan_xg_tjxg', 'admin/dingdan_xg_tjxg');
+Route::post('/admin/dingdan_xg_mx_del', 'admin/dingdan_xg_mx_del');
+
+    //订单导出
+Route::post('/admin/dingdan_daochu', 'admin/dingdan_daochu');
+Route::post('/admin/dingdan_daochu2', 'admin/dingdan_daochu2');
+Route::get('/admin/dingdan_daochu_down', 'admin/dingdan_daochu_down');
+Route::post('/admin/dingdan_huancun_del', 'admin/dingdan_huancun_del');
+
+
+//用户相关
+Route::post('/admin/user_qt_editpass', 'admin/user_qt_editpass');
 
 
 

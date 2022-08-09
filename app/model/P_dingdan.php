@@ -18,8 +18,10 @@ class P_dingdan extends Model
     public $money1;
     public $money2;
     public $zw_guige;
+    public $zw_guige2;
     public $zw_houdu;
     public $zw_yanse;
     public $zw_paixu;
     public $zw_hebing;
+    public $zw_zhonglei;
 }

@@ -6,6 +6,7 @@
     <script type="text/javascript" src="/static/js/jquery.min.js"></script>
     <script type="text/javascript" src="/static/js/jquery.easyui.min.js"></script>
     <script type="text/javascript" src="/static/js/easyui-lang-zh_CN.js"></script>
+    <script type="text/javascript" src="/static/js/base64.js"></script>
     <script src="https://cdn.bootcss.com/blueimp-md5/2.10.0/js/md5.js"></script>
     <style type="text/css">
         .ddxx{
@@ -56,6 +57,13 @@
             width: 240px;
         }
 
+        .ddmxt input{
+            width: 60px;
+        }
+        .ddmxt2 input{
+            width: 60px;
+        }
+
     </style>
 </head>
 <body style="padding:0px;">
@@ -67,6 +75,7 @@
         <thead>
             <tr>
                 <th field="id" width="50" hidden="true">Id</th>
+                <th field="dingdanhao" width="50">订单号</th>
                 <th field="username" width="50">用户名</th>
                 <th field="user_id" width="50" hidden="true">用户id</th>
                 <th field="opid" width="50">微信openid</th>
@@ -76,13 +85,16 @@
                 <th field="times" width="50">下单时间</th>
                 <th field="zt" width="50">订单状态</th>
                 <th field="qhm" width="50">取货码</th>
+                <th field="ysr" width="50">验收人</th>
                 <th field="zw_guige" width="50">规格</th>
                 <th field="zw_houdu" width="50">厚度(cm)</th>
                 <th field="zw_yanse" width="50">颜色</th>
+                <th field="zw_zhonglei" width="50">主瓦种类</th>
                 <th field="zw_danwei" width="50">主瓦单位</th>
                 <th field="infor" width="50">查看详细</th>
                 <th field="clicks" width="50">订单确认</th>
                 <th field="jz" width="50">是否结账</th>
+
             </tr>
         </thead>
     </table>
@@ -96,7 +108,8 @@
             <font color="red">未确认</font><input type="radio" name="shaixuan" value="1" onclick="suoyin(1)" />&nbsp;
             <font color="yellow">备货中</font><input type="radio" name="shaixuan" value="2" onclick="suoyin(2)" />&nbsp;
             <font color="green">待取货</font><input type="radio" name="shaixuan" value="3" onclick="suoyin(3)" />&nbsp;
-            <font color="blue">已取货</font><input type="radio" name="shaixuan" value="4" onclick="suoyin(4)" />
+            <font color="blue">已取货</font><input type="radio" name="shaixuan" value="4" onclick="suoyin(4)" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <font color="red">修改待确认</font><input type="radio" name="shaixuan" value="1" onclick="suoyin(0)" />&nbsp;
         </form>
 
         <form onsubmit="return false;">
@@ -123,7 +136,12 @@
         </form>
         
         <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="tj()">查看筛选内容的统计信息</a>
-
+        <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="dd_xiugai_win()">订单修改</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="dd_del_a()">订单删除</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="dd_select()">高级搜索</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="dd_list_frase()">刷新</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="dd_daochu()">导出excel</a>
+        <a href="#" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="dd_wj_del()">清空缓存</a>
         <!-- <a href="#" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="destroyUser()">删除</a> -->
         
     </div>
@@ -131,6 +149,10 @@
     <div id="win">
         <p id="win_p_1">订单信息</p>
         <table class="ddxx" id="win_table_1">
+            <tr>
+                <td>订单号</td><td id="win_td_dingdanhao"></td>
+                <td>验收人</td><td id="win_td_ysr"></td>
+            </tr>
             <tr>
                 <td>姓名</td><td id="win_td_names"></td>
                 <td>电话</td><td id="win_td_tel"></td>
@@ -147,8 +169,14 @@
                 <td>主瓦单位</td><td id="win_td_danwei"></td>
             </tr>
             <tr>
+                <td>宽度(m，对应规格)</td><td id="win_td_guige2"></td>
+                <td>颜色</td><td id="win_td_yanse"></td>
+                <td>种类</td><td id="win_td_zhonglei"></td>
+            </tr>
+            <tr>
                 <td>备注</td><td colspan="5" id="win_td_beizhu"></td>
             </tr>
+            
         </table>
 
         <p id="win_p_2">订单明细</p>
@@ -194,6 +222,191 @@
         <button id="win3_pljz" onclick="dd_pljz()">批量结账</button>
     </div>
 
+    <div id="win4"><!--修改记录查看-->
+        <p id="win4_p_1">订单信息</p>
+        <table class="ddxx" id="win4_table_1">
+            <tr>
+                <td>订单号</td><td id="win4_td_dingdanhao"></td>
+                <td>验收人</td><td id="win4_td_ysr"></td>
+            </tr>
+            <tr>
+                <td>姓名</td><td id="win4_td_names"></td>
+                <td>电话</td><td id="win4_td_tel"></td>
+                <td>下单时间</td><td id="win4_td_times"></td>
+                <td>修改时间</td><td id="win4_td_times2"></td>
+            </tr>
+            </tr>
+                <td>状态</td><td id="win4_td_zt"></td>
+                <td>取货码</td><td id="win4_td_qhm"></td>
+                <td>订单金额</td><td id="win4_td_money2"></td>
+            </tr>
+            </tr>
+                <td>规格</td><td id="win4_td_guige"></td>
+                <td>厚度</td><td id="win4_td_houdu"></td>
+                <td>主瓦单位</td><td id="win4_td_danwei"></td>
+            </tr>
+            </tr>
+                <td>宽度</td><td id="win4_td_guige2"></td>
+                <td>种类</td><td id="win4_td_zhonglei"></td>
+                <td>颜色</td><td id="win4_td_yanse"></td>
+            </tr>
+            <tr>
+                <td>备注</td><td colspan="5" id="win4_td_beizhu"></td>
+            </tr>
+        </table>
+
+        <p id="win4_p_2">订单明细</p>
+        <table class="ddmx">
+            <tr>
+                <td>产品名称</td>
+                <td>规格</td>
+                <td>单位</td>
+                <td>数量</td>
+                <td>单价</td>
+                <td>金额</td>
+            </tr>
+        </table>
+        
+        <table id="win4_table_2" class="ddmxt"></table>
+
+        <p id="win4_p_3">原始主瓦明细</p>
+        <table class="ddmx2">
+            <tr>
+                <td>长度</td>
+                <td>块数</td>
+                <td>总量(单位：<span id="zw4_danwei_th"></span>)</td>
+            </tr>
+        </table>
+        
+        <table id="win4_table_3" class="ddmxt2"></table>
+
+        <p id="win4_p_4">修改后主瓦明细</p>
+        <table class="ddmx2">
+            <tr>
+                <td>长度</td>
+                <td>块数</td>
+                <td>总量(单位：<span id="zw4_danwei_th2"></span>)</td>
+            </tr>
+        </table>
+        
+        <table id="win4_table_4" class="ddmxt2"></table>
+        <br>
+        <button id="win4_xg_but">确认修改（不可撤销）</button>
+    </div>
+
+    <div id="win5"><!--订单修改,还是模仿订单查看界面，把表格变成输入框，但是还要注意单价、数量、总价之间的对照变动关系-->
+        <p id="win5_p_1">订单信息</p>
+        <table class="ddxx" id="win5_table_1">
+            <tr>
+                <td>订单号</td><td id="win5_td_dingdanhao"></td>
+                <td>验收人</td><td id="win5_td_ysr"></td>
+            </tr>
+            <tr>
+                <td>姓名</td><td id="win5_td_names"></td>
+                <td>电话</td><td id="win5_td_tel"></td>
+                <td>下单时间</td><td id="win5_td_times"></td>
+            </tr>
+            </tr>
+                <td>状态</td><td id="win5_td_zt"></td>
+                <td>取货码</td><td id="win5_td_qhm"></td>
+                <td>订单金额</td><td ><input type="text" id="win5_td_money2"/></td>
+            </tr>
+            </tr>
+                <td>规格</td><td ><input type="text" id="win5_td_guige"/></td>
+                <td>厚度</td><td ><input type="text" id="win5_td_houdu"/></td>
+                <td>主瓦单位</td><td ><select id="win5_td_danwei" onchange="win5_zw_dw_xg()"></select></td>
+            </tr>
+            <tr>
+                <td>宽度(m，对应规格)</td><td><input type="text" id="win5_td_guige2"/></td>
+                <td>颜色</td><td><input type="text" id="win5_td_yanse"/></td>
+                <td>种类</td><td><input type="text" id="win5_td_zhonglei"/></td>
+            </tr>
+            <tr>
+                <td>备注</td><td colspan="5"><textarea id="win5_td_beizhu"></textarea></td>
+            </tr>
+            <p>注：这里的订单金额会随产品改动变化，但是规格、厚度、颜色只是手动修改，不会自动匹配相应主瓦价格。宽度和下方主瓦尺寸关联，但是改宽度对主瓦总量的修改不是实时的，需手动</p>
+        </table>
+
+        <p id="win5_p_2">订单明细<button id="win5_btn_add_mx">增加新项目</button></p>
+        <table class="ddmx">
+            <tr>
+                <td>产品名称</td>
+                <td>规格</td>
+                <td>单位</td>
+                <td>数量</td>
+                <td>单价</td>
+                <td>金额</td>
+                <td>操作</td>
+            </tr>
+        </table>
+        
+        <table id="win5_table_2" class="ddmxt"></table>
+
+        <p id="win5_p_3">主瓦明细<button id="win5_btn_add_zw">增加新主瓦</button></p>
+        <p>注：</p>
+        <table class="ddmx2">
+            <tr>
+                <td>长度</td>
+                <td>块数</td>
+                <td>总量(单位：<span id="zw5_danwei_th"></span>)</td>
+                <td>操作</td>
+            </tr>
+        </table>
+        
+        <table id="win5_table_3" class="ddmxt2"></table>
+
+        <button id="win5_btn_qr">确认修改</button>
+    </div>
+    <div id="win6"><!--修改订单新增产品项目界面-->
+        产品<select id="win6_prolist"></select><br>
+        <!-- 单价<input type="text" id="win6_inp_dj"><br> -->
+        数量<input type="text" id="win6_inp_numb"><br>
+        客户销售价格<input type="text" id="win6_inp_money"><br>
+        <button id="win6_btn_tj">确认添加</button>
+    </div>
+    <div id="win7"><!--修改订单新增主瓦界面-->
+        尺寸<select id="win7_chicun_list"></select><br>
+        数量<input type="text" id="win7_inp_numb"><br>
+        <button id="win7_btn_tj">确认添加</button>
+    </div>
+    <div id="win8"><!---高级搜索窗口--->
+        <p>注：使用高级搜索前，请先把订单状态、结账状态、订单查询全部变成初始状态。此外，高级搜索结果无法查看统计</p>
+        <form onsubmit="return false;" id="win8_form">
+            姓名 <input name="username" /><br>
+            电话<input name="tel" /><br>
+            取货码<input name="qhm" /><br>
+            订单号<input name="dingdanhao" /><br>
+            订单状态
+            <font color="black">全部</font><input type="radio" name="zt" value="5" checked="true" />&nbsp;
+            <font color="red">未确认</font><input type="radio" name="zt" value="1"  />&nbsp;
+            <font color="yellow">备货中</font><input type="radio" name="zt" value="2"  />&nbsp;
+            <font color="green">待取货</font><input type="radio" name="zt" value="3"  />&nbsp;
+            <font color="blue">已取货</font><input type="radio" name="zt" value="4"  />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <font color="red">修改待确认</font><input type="radio" name="zt" value="0"  />&nbsp;
+            <br>
+
+            时间<input type="text" class="easyui-datebox" name="time1" style="width: 150px;">到
+            <input  type="text" class="easyui-datebox"  name="time2" style="width: 150px;">（两个都要否则无效）<br>
+
+            结账状态
+            <font color="black">全部</font><input type="radio" name="jz" value="0"  checked="true">&nbsp;
+            <font color="black">未结账</font><input type="radio" name="jz" value="1" >&nbsp;
+            <font color="black">已结账</font><input type="radio" name="jz" value="2" ><br>
+
+
+            用户自定总金额<input name="money1" /><br>
+            实际订单总金额<input name="money2" /><br>
+            规格<input name="guige" /><br>
+            厚度<input name="houdu" /><br>
+            颜色<input name="yanse" /><br>
+            种类<input name="zhonglei" /><br>
+
+            <button id="win8_btn">搜索</button>
+        </form>
+        
+
+    </div>
+
     <script>
 
     //全局筛选状态控制变量
@@ -205,8 +418,23 @@
         opid:null,
         time1:null,
         time2:null,
-        jz:null
+        jz:null,
+        dingdanhao:null,
+
+        //下面是为高级搜索提供的
+        money1:null,
+        money2:null,
+        guige:null,
+        houdu:null,
+        yanse:null,
+        zhonglei:null
     };
+
+    function dataclear(){//data清空
+        for(var k in data){
+            data[k] = null;
+        }
+    }
 
     (function(){//初始化详细信息面板
         $('#win').window({
@@ -235,7 +463,139 @@
             });
         $('#win3').window('close');
     })();
-    
+    (function(){//初始化修改明细面板
+        $('#win4').window({
+            width:600,
+            height:400,
+            modal:true,
+            title:"修改明细"
+            });
+        $('#win4').window('close');
+    })();
+    (function(){//初始化修改订单面板
+        $('#win5').window({
+            width:600,
+            height:400,
+            modal:true,
+            title:"订单修改"
+            });
+        $('#win5').window('close');
+    })();
+    (function(){//初始化新增订单产品界面
+        $('#win6').window({
+            width:600,
+            height:400,
+            modal:true,
+            title:"新增订单产品"
+            });
+        $('#win6').window('close');
+        $.post('productlist',{},function(res){
+            var data = res.rows;
+            var sel = document.getElementById("win6_prolist");
+            for(var i=0;i<data.length;i++){
+                var lsop = document.createElement('option');
+                lsop.value = data[i]['id'];
+                lsop.innerHTML = data[i]['names'];
+                sel.appendChild(lsop);
+            }
+        });
+    })();
+    //zhuwa_list
+    (function(){//初始化新增主瓦界面
+        $('#win7').window({
+            width:600,
+            height:400,
+            modal:true,
+            title:"新增订单主瓦"
+            });
+        $('#win7').window('close');
+        $.post('zhuwa_list',{},function(res){
+            console.log(res);
+            var data = res;
+            var sel = document.getElementById("win7_chicun_list");
+            for(var i=0;i<data.length;i++){
+                var lsop = document.createElement('option');
+                lsop.value = data[i]['id'];
+                lsop.innerHTML = data[i]['chicun'];
+                sel.appendChild(lsop);
+            }
+        });
+    })();
+    (function(){//初始化高级搜索面板
+        $('#win8').window({
+            width:600,
+            height:600,
+            modal:true,
+            title:"高级搜索",
+            onClose:function(){
+                for(var k in data){
+                    data[k] = null;
+                }
+                
+            }
+        });
+        $('#win8').window('close');
+    })();
+    function dd_select(){//顶部按钮 高级搜索
+        //弹出新窗口
+        $("#win8_btn").unbind();
+        $("#win8_btn").bind("click",function(){
+            var fm = document.getElementById("win8_form");
+            data.username = fm.username.value==""?null:fm.username.value;
+            data.tel = fm.tel.value==""?null:fm.tel.value;
+            data.qhm = fm.qhm.value==""?null:fm.qhm.value;
+            data.zt = fm.zt.value==5?null:fm.zt.value;
+            data.opid = null;
+            data.dingdanhao = fm.dingdanhao.value==""?null:fm.dingdanhao.value;
+
+            data.time1 = fm.time1.value==""?null:fm.time1.value;
+            data.time2 = fm.time2.value==""?null:fm.time2.value;
+            data.jz = fm.jz.value==0?null:fm.jz.value;
+            data.money1 = fm.money1.value==""?null:fm.money1.value;
+            data.money2 = fm.money2.value==""?null:fm.money2.value;
+            data.guige = fm.guige.value==""?null:fm.guige.value;
+            data.houdu = fm.houdu.value==""?null:fm.houdu.value;
+            data.yanse = fm.yanse.value==""?null:fm.yanse.value;
+            data.zhonglei = fm.zhonglei.value==""?null:fm.zhonglei.value;
+            console.log(data);
+            $('#dg').datagrid({
+                queryParams: data
+            });
+            $('#dg').datagrid('reload');
+        });
+        $("#win8").window("open");
+    }
+    function dd_list_frase(){//列表刷新
+        $('#dg').datagrid('reload');
+    }
+
+    function dd_daochu(){//顶部按钮 订单导出
+        var row = $('#dg').datagrid('getSelected');
+        if (row){
+            $.post('dingdan_daochu',{id:row.id},function(res){
+                if(res.code != 1){
+                    $.messager.show({	// show error message
+                    title: 'Error',
+                    msg: res.msg,
+                    showSpeed:2000
+                    });
+                }else{
+                    $.messager.show({	// show error message
+                    title: 'Success',
+                    msg: res.msg,
+                    showSpeed:2000
+                    });
+                    //弹出到新页面
+                    console.log(res.data);
+                    window.open('dingdan_daochu_down?names='+res.data,'_blank');//即，传回的data是文件名
+                }
+            });
+        }else{
+            alert("未选择订单");
+        }
+    }
+
+
     function chakanxiangqing(did){//查看订单详情，生成一个浮动面板
         // alert(1);
         $.post('dingdan_xq',{id:did},function(result){
@@ -265,14 +625,22 @@
                 $("#win_td_money2").html(dingdan.money2);
                 $("#win_td_beizhu").html(dingdan.beizhu);
                 $("#win_td_guige").html(dingdan.zw_guige);
+                $("#win_td_dingdanhao").html(dingdan.dingdanhao);
+                
+                
                 $("#win_td_houdu").html(dingdan.zw_houdu);
+                $("#win_td_guige2").html(dingdan.zw_guige2);
+                $("#win_td_yanse").html(dingdan.zw_yanse);
+                $("#win_td_zhonglei").html(dingdan.zw_zhonglei);
+                // <td>验收人</td><td id="win_td_ysr"></td>
+                $("#win_td_ysr").html(dingdan.ysr);
                 ;
                 if(dingdan.zw_danwei == 1){
                     $("#win_td_danwei").html("米")
                     $("#zw_danwei_th").html("米");
                 }else{
                     $("#zw_danwei_th").html("平方米");
-                    $("#win_td_danwei").html("平方米")
+                    $("#win_td_danwei").html("平方米");
                 }
                 
                 
@@ -285,7 +653,7 @@
                     mingxitxt += "<td>"+mingxi[i].danwei+"</td>";
                     mingxitxt += "<td>"+mingxi[i].numbers+"</td>";
                     mingxitxt += "<td>"+mingxi[i].money2+"</td>";
-                    mingxitxt += "<td>"+Math.ceil(mingxi[i].money2*mingxi[i].numbers*100)/100+"</td>";
+                    mingxitxt += "<td>"+mingxi[i].zmoney+"</td>";
                     mingxitxt += "</tr>";
                 }
                 //主瓦明细
@@ -321,8 +689,116 @@
                     showSpeed:2000
                 });
             }else{
-                var data = res.data;
+                // var data = res.data;
+                var dingdan = res.data.dingdan;
+                var mingxi = res.data.mingxi;
+                var zhuwa = res.data.zhuwa;
+                var zhuwa2 = res.data.zhuwa2;
+                console.log(dingdan);
                 
+                //面板数据更新
+                //订单信息
+                $("#win4_td_names").html(dingdan.names);
+                $("#win4_td_tel").html(dingdan.tel);
+                $("#win4_td_times").html(dingdan.times) ;
+                $("#win4_td_times2").html(dingdan.times2) ;//****
+                $("#win4_td_zt").html(dingdan.zt);
+                $("#win4_td_qhm").html(dingdan.qhm);
+                $("#win4_td_money2").html(dingdan.money2);
+                $("#win4_td_beizhu").html(dingdan.beizhu);
+                $("#win4_td_guige").html(dingdan.zw_guige);
+                $("#win4_td_guige2").html(dingdan.zw_guige2);
+                $("#win4_td_houdu").html(dingdan.zw_houdu);
+                $("#win4_td_zhonglei").html(dingdan.zw_zhonglei);
+                $("#win4_td_yanse").html(dingdan.zw_yanse);
+                $("#win4_td_dingdanhao").html(dingdan.dingdanhao);
+                $("#win4_td_ysr").html(dingdan.ysr);
+                var lstxt = "";
+                if(dingdan.zw_danwei == 1){
+                    // $("#win4_td_danwei").html("米");
+                    $("#zw4_danwei_th").html("米");
+                    lstxt += "米";
+                }else{
+                    $("#zw4_danwei_th").html("平方米");
+                    // $("#win4_td_danwei").html("平方米");
+                    lstxt += "平方米";
+                }
+                lstxt += "->";
+                if(dingdan.zw_danwei2 == 1){
+                    $("#zw4_danwei_th2").html("米");
+                    lstxt += "米";
+                }else{
+                    $("#zw4_danwei_th2").html("平方米");
+                    lstxt += "平方米";
+                }
+                $("#win4_td_danwei").html(lstxt);
+                
+                //订单明细
+                var mingxitxt = "";
+                for(var i=0;i<mingxi.length;i++){
+                    mingxitxt += "<tr>";
+                    mingxitxt += "<td>"+mingxi[i].pro_names+"</td>";
+                    mingxitxt += "<td>"+mingxi[i].guige+"</td>";
+                    mingxitxt += "<td>"+mingxi[i].danwei+"</td>";
+                    mingxitxt += "<td>"+mingxi[i].numbers+"</td>";
+                    mingxitxt += "<td>"+mingxi[i].money2+"</td>";
+                    mingxitxt += "<td>"+mingxi[i].zmoney+"</td>";
+                    mingxitxt += "</tr>";
+                }
+                //主瓦明细
+                var zhuwatxt = "";
+                for(var i=0;i<zhuwa.length;i++){
+                    zhuwatxt += "<tr>";
+                    zhuwatxt += "<td>"+zhuwa[i].changdu+"</td>";
+                    zhuwatxt += "<td>"+zhuwa[i].numbers+"</td>";
+                    if(dingdan.zw_danwei == 1){
+                        zhuwatxt += "<td>"+zhuwa[i].chicun1+"</td>";
+                    }else{
+                        zhuwatxt += "<td>"+zhuwa[i].chicun2+"</td>";
+                    }
+                    
+                    zhuwatxt += "</tr>";
+                }
+
+                var zhuwatxt2 = "";
+                for(var i=0;i<zhuwa2.length;i++){
+                    zhuwatxt2 += "<tr>";
+                    zhuwatxt2 += "<td>"+zhuwa2[i].changdu+"</td>";
+                    zhuwatxt2 += "<td>"+zhuwa2[i].numbers+"</td>";
+                    if(dingdan.zw_danwei2 == 1){
+                        zhuwatxt2 += "<td>"+zhuwa2[i].chicun1+"</td>";
+                    }else{
+                        zhuwatxt2 += "<td>"+zhuwa2[i].chicun2+"</td>";
+                    }
+                    
+                    zhuwatxt2 += "</tr>";
+                }
+
+                $("#win4_table_2").html(mingxitxt);
+                $("#win4_table_3").html(zhuwatxt);
+                $("#win4_table_4").html(zhuwatxt2);
+
+                $("#win4_xg_but").unbind();
+                $("#win4_xg_but").bind('click',function(){
+                    $.post('dingdan_xg_qr',{id:did},function(res){
+                        if(res.code!=1){
+                            $.messager.show({	// show error message
+                                title: 'Error',
+                                msg: res.msg,
+                                showSpeed:2000
+                            });
+                        
+                        }else{
+                            $.messager.show({	// show error message
+                                title: 'Success',
+                                msg: res.msg,
+                                showSpeed:2000
+                            });
+                        }
+                    });
+                });
+
+                $('#win4').window('open');
 
 
 
@@ -330,8 +806,431 @@
         })
     }
 
-    function dd_jieshou(did){
-        //接受订单
+    
+    function dd_xiugai_win(){//订单修改
+        var row = $('#dg').datagrid('getSelected');
+        if(!row){
+            alert("未选择任何订单");
+            return;
+        }
+        var did = row.id;
+        $.post('dingdan_xq',{id:did},function(result){//从订单详情接口，先拿到订单的详细数据
+            // alert(result);
+            // var res = eval('('+result+')');
+            var res = result;
+            console.log(res);
+            if(res.code != 1){
+                $.messager.show({	// show error message
+                    title: 'Error',
+                    msg: res.msg,
+                    showSpeed:2000
+                });
+            }else{
+                var dingdan = res.data.dingdan;
+                var mingxi = res.data.mingxi;
+                var zhuwa = res.data.zhuwa;
+                console.log(dingdan);
+                
+                //面板数据更新
+                //订单信息
+                $("#win5_td_names").html(dingdan.names);
+                $("#win5_td_tel").html(dingdan.tel);
+                $("#win5_td_times").html(dingdan.times) ;
+                $("#win5_td_zt").html(dingdan.zt);
+                $("#win5_td_qhm").html(dingdan.qhm);
+                $("#win5_td_money2").val(dingdan.money2);
+                $("#win5_td_beizhu").val(dingdan.beizhu);
+                $("#win5_td_guige").val(dingdan.zw_guige);
+                $("#win5_td_guige2").val(dingdan.zw_guige2);
+                $("#win5_td_houdu").val(dingdan.zw_houdu);
+                $("#win5_td_yanse").val(dingdan.zw_yanse);
+                $("#win5_td_zhonglei").val(dingdan.zw_zhonglei);
+                $("#win5_td_dingdanhao").html(dingdan.dingdanhao);
+                $("#win5_td_ysr").html(dingdan.ysr);
+                
+                //单位
+                var dwsel = document.getElementById('win5_td_danwei');
+                var op1 = document.createElement('option');
+                op1.value=1;
+                op1.innerHTML="米";
+                var op2 = document.createElement('option');
+                op2.value=2;
+                op2.innerHTML="平方米";
+                if(dingdan.zw_danwei == 1){
+                    // $("#win_td_danwei").html("米");
+                    $("#zw5_danwei_th").html("米");
+                    op1.selected="selected";
+                }else{
+                    $("#zw5_danwei_th").html("平方米");
+                    // $("#win_td_danwei").html("平方米");
+                    op2.selected="selected";
+                }
+                dwsel.innerHTML="";
+                dwsel.appendChild(op1);
+                dwsel.appendChild(op2);
+                // dwsel.onchange=function(){
+                    
+                // }
+                //订单明细 这里现在需要做改动如下
+                //对主瓦部分进行特殊化处理，不能被直接改动数目，只能改动单价
+                //然后和主瓦明细部分进行数据上的同步处理
+                var mingxitxt = "";
+                for(var i=0;i<mingxi.length;i++){
+                    if(mingxi[i].pro_id==1){//主瓦
+                        mingxitxt += "<tr>";
+                        mingxitxt += "<td>"+mingxi[i].pro_names+"<input type='hidden' value='"+mingxi[i].id+"' /><input type='hidden' value='"+mingxi[i].pro_id+"' /></td>";
+                        mingxitxt += "<td><input value='"+mingxi[i].guige+"' /></td>";
+                        mingxitxt += "<td><input value='"+mingxi[i].danwei+"'/></td>";
+                        mingxitxt += "<td><input onblur='win5_ddmx_numb_change(this)' readonly='readonly' value='"+mingxi[i].numbers+"' /></td>";
+                        mingxitxt += "<td><input onblur='win5_ddmx_numb_change(this)' value='"+mingxi[i].money2+"'/></td>";
+                        mingxitxt += "<td><input class='win5_ddmx_zmoney' value='"+mingxi[i].zmoney+"'/></td>";
+                        mingxitxt += "<td><input type='hidden' value='"+mingxi[i].money1+"' /><button onclick='win5_mx_del("+mingxi[i].id+")'>删除</button></td>";
+                        mingxitxt += "</tr>";
+                    }else{
+                        mingxitxt += "<tr>";
+                        mingxitxt += "<td>"+mingxi[i].pro_names+"<input type='hidden' value='"+mingxi[i].id+"'><input type='hidden' value='"+mingxi[i].pro_id+"' /></td>";
+                        mingxitxt += "<td><input value='"+mingxi[i].guige+"' /></td>";
+                        mingxitxt += "<td><input value='"+mingxi[i].danwei+"'/></td>";
+                        mingxitxt += "<td><input onblur='win5_ddmx_numb_change(this)' value='"+mingxi[i].numbers+"' /></td>";
+                        mingxitxt += "<td><input onblur='win5_ddmx_numb_change(this)' value='"+mingxi[i].money2+"'/></td>";
+                        mingxitxt += "<td><input class='win5_ddmx_zmoney' value='"+mingxi[i].zmoney+"'/></td>";
+                        mingxitxt += "<td><input type='hidden' value='"+mingxi[i].money1+"' /><button onclick='win5_mx_del("+mingxi[i].id+")'>删除</button></td>";
+                        mingxitxt += "</tr>";
+                    }
+                    
+                }
+                //主瓦明细
+                var zhuwatxt = "";
+                for(var i=0;i<zhuwa.length;i++){
+                    zhuwatxt += "<tr>";
+                    zhuwatxt += "<td>"+zhuwa[i].changdu+"<input type='hidden' value='"+dingdan.zw_guige2+"' /><input type='hidden' value='"+dingdan.zw_danwei+"' /><input type='hidden' value='"+zhuwa[i].changdu+"' /></td>";
+                    //这里直接把订单的 主瓦宽度 主瓦单位写死，上面总参数中之后再加上修改时直接刷新页面，就可以了
+                    //原因是，如果这里是动态获取上面的参数进行计算，那么上面参数修改时，这里的值都要变化，这一过程使用原生js实现较为麻烦
+                    //使用刷新页面操作，对动态绑定进行替代
+                    zhuwatxt += "<td><input type='text' onblur='win5_ddzw_numb_change(this)' value='"+zhuwa[i].numbers+"' /></td>";
+                    if(dingdan.zw_danwei == 1){
+                        zhuwatxt += "<td><input type='text' readonly='readonly' class='win5_zw_jl'   value='"+zhuwa[i].chicun1+"' /></td>";
+                    }else{
+                        zhuwatxt += "<td><input type='text' readonly='readonly' class='win5_zw_jl'  value='"+zhuwa[i].chicun2+"' /></td>";
+                    }
+                    zhuwatxt += "<td><input type='hidden' value='"+zhuwa[i].id+"' /><button onclick='win5_zw_del("+zhuwa[i].id+")'>删除</button></td>";
+                    zhuwatxt += "</tr>";
+                }
+
+                $("#win5_table_2").html(mingxitxt);
+                $("#win5_table_3").html(zhuwatxt);
+
+                //新增明细按钮事件绑定
+                $("#win5_btn_add_mx").unbind();
+                $("#win5_btn_add_mx").bind('click',function(){
+                    //弹出一个新窗口win6，并给其绑定事件
+                    $("#win6_btn_tj").unbind();
+                    $("#win6_btn_tj").bind('click',function(){
+                        var proid = $("#win6_prolist").val();
+                        var numb = $("#win6_inp_numb").val();
+                        var money1 = $("#win6_inp_money").val();
+                        $.post('dingdan_xg_add_mx',{id:did,pro_id:proid,numbs:numb,money1:money1},function(res){//这个接口还没写，先空着
+                            if(res.code != 1){
+                                $.messager.show({	// show error message
+                                    title: 'Error',
+                                    msg: res.msg,
+                                    showSpeed:2000
+                                });
+                            }else{
+                                $.messager.show({	// show error message
+                                    title: 'Success',
+                                    msg: res.msg,
+                                    showSpeed:2000
+                                });
+                                //然后直接先关掉win6.然后刷新win5
+                                $("#win6").window("close");
+                                $("#win5").window("close");
+                                dd_xiugai_win();
+                            }
+                        });
+                    });
+                    $("#win6").window("open");
+                });
+                //新增主瓦按钮事件绑定
+                $("#win5_btn_add_zw").unbind();
+                $("#win5_btn_add_zw").bind('click',function(){
+                    //尺寸<select id="win7_chicun_list"></select><br>
+                    //数量<input type="text" id="win7_inp_numb"><br>
+                    $("#win7_btn_tj").unbind();
+                    $("#win7_btn_tj").bind('click',function(){
+                        var add_chicun = $("#win7_chicun_list").val();//尺寸表的id
+                        var add_numb = $("#win7_inp_numb").val();
+                        var data0 = {id:did,chicun:add_chicun,numb:add_numb};
+                        console.log(data0);
+                        $.post('dingdan_xg_add_zw',data0,function(res){
+                            if(res.code != 1){
+                                $.messager.show({	// show error message
+                                    title: 'Error',
+                                    msg: res.msg,
+                                    showSpeed:2000
+                                });
+                            }else{
+                                $.messager.show({	// show error message
+                                    title: 'Success',
+                                    msg: res.msg,
+                                    showSpeed:2000
+                                });
+                                //然后直接先关掉win6.然后刷新win5
+                                $("#win7").window("close");
+                                $("#win5").window("close");
+                                dd_xiugai_win();
+                            }
+                        });
+                    });
+                    $("#win7").window("open");
+                });
+
+                //提交修改按钮事件绑定
+
+                $("#win5_btn_qr").unbind();
+                $("#win5_btn_qr").bind('click',function(){
+                    //先获取基本订单数据
+                    var xgdata = {};
+                    xgdata.money2 = $("#win5_td_money2").val();
+                    xgdata.beizhu = $("#win5_td_beizhu").val();
+                    xgdata.zw_guige = $("#win5_td_guige").val();
+                    xgdata.zw_guige2 = $("#win5_td_guige2").val();
+                    xgdata.zw_houdu = $("#win5_td_houdu").val();
+                    xgdata.zw_yanse = $("#win5_td_yanse").val();
+                    xgdata.zw_zhonglei = $("#win5_td_zhonglei").val();
+                    // xgdata.zw_danwei = $("#win5_td_danwei").val()=="米"?1:2;
+                    xgdata.zw_danwei = document.getElementById("win5_td_danwei").value;
+                    xgdata.did = did;//订单id
+                    //在拿到明细数据表
+                    var mxtab = document.getElementById("win5_table_2");
+                    var mxtr = mxtab.getElementsByTagName("tr");
+                    var mingxidata = [];
+                    var dd_money1 = 0;//用户自定价格的订单的总金额
+                    for(var i=0;i<mxtr.length;i++){
+                        var inps = mxtr[i].getElementsByTagName("input");
+                        mingxidata.push({
+                            id:inps[0].value,
+                            numbers:inps[4].value,
+                            money2:inps[5].value,
+                            zmoney:inps[6].value,
+                            danwei:inps[3].value,
+                            guige:inps[2].value
+                        });
+                        dd_money1 += inps[7].value*inps[4].value;//单价*数量
+                    }
+
+                    //前面忘记考虑用户自定金额的修改了
+                    dd_money1 = Math.round(dd_money1*100)/100;
+                    xgdata.money1 = dd_money1;
+
+                    //再获取主瓦明细表
+                    var zwtab = document.getElementById("win5_table_3");
+                    var zwtr = zwtab.getElementsByTagName("tr");
+                    var zwdata = [];
+                    for(var i=0;i<zwtr.length;i++){
+                        var inps = zwtr[i].getElementsByTagName("input");
+                        zwdata.push({
+                            id:inps[5].value,
+                            changdu:inps[2].value,
+                            numbers:inps[3].value
+                        });
+                        var kd = $("#win5_td_guige2").val();//宽度
+                        if(dingdan.zw_danwei == 1){
+                            zwdata[i].chicun1 = inps[4].value;
+                            zwdata[i].chicun2 = Math.round(inps[3].value*inps[2].value*kd*10000)/10000;
+                        }else{
+                            zwdata[i].chicun2 = inps[4].value;
+                            zwdata[i].chicun1 = Math.round(inps[3].value*inps[2].value*10000)/10000;
+                        }
+                    }
+                    var postdata={
+                        data:xgdata,
+                        mxdata:mingxidata,
+                        zwdata:zwdata
+                    };
+                    console.log(postdata);
+                    var txt = Base64.encode(JSON.stringify(postdata));
+                    console.log(txt);
+                    $.post('dingdan_xg_tjxg',{data:txt},function(res){
+                        if(res.code != 1){
+                            $.messager.show({	// show error message
+                                title: 'Error',
+                                msg: res.msg,
+                                showSpeed:2000
+                            });
+                        }else{
+                            $.messager.show({	// show error message
+                                title: 'Success',
+                                msg: res.msg,
+                                showSpeed:2000
+                            });
+                            //刷新win5
+                            // $("#win7").window("close");
+                            $("#win5").window("close");
+                            dd_xiugai_win();
+                        }
+                    });
+                });
+
+                $('#win5').window('open');
+            }
+        });
+    }
+
+    function win5_ddmx_numb_change(inpobj){//修改订单界面 明细部分 修改单价、数量时触发，修改对应金额
+        var trs = inpobj.parentNode.parentNode;
+        var inp = trs.getElementsByTagName("input");
+        inp[6].value = Math.round(inp[4].value*inp[5].value*100)/100;//单项明细总金额
+
+        var mons = document.getElementById('win5_table_2').getElementsByClassName("win5_ddmx_zmoney");
+        var zmoney = 0.0;
+        for(var i=0;i<mons.length;i++){
+            zmoney += mons[i].value-0;
+        }
+        $("#win5_td_money2").val(Math.round(zmoney*100)/100+'');//修改总金额
+    }
+    function win5_ddzw_numb_change(inpobj){//修改订单界面 主瓦部分 修改数量时触发
+        //win5_table_3
+        // alert(1);
+        var trs = inpobj.parentNode.parentNode;
+        var inp = trs.getElementsByTagName("input");
+        // var kuandu = inp[0].value-0;//宽度要做下修改，让其读取上面表中的数据才合适
+        var kuandu = $("#win5_td_guige2").val() - 0;
+        // var danwei = inp[1].value;//主瓦单位
+        var danwei = document.getElementById("win5_td_danwei").value;
+        var changdu = inp[2].value-0;
+        var numbs = inp[3].value-0;
+        console.log(numbs);
+        // var zchicun = inp[4];
+        if(danwei == 1){//米 总量
+            inp[4].value = Math.round(numbs*changdu*10000)/10000;
+        }else{
+            inp[4].value = Math.round(numbs*changdu*kuandu*10000)/10000;
+        }
+        //计算当前主瓦总量
+        var zwzl = 0;
+        var zljl = trs.parentNode.getElementsByClassName("win5_zw_jl");
+        for(var i=0;i<zljl.length;i++){
+            console.log(zljl[i].value);
+            zwzl += (zljl[i].value - 0.0);
+        }
+        console.log(zwzl);//出现了NaN
+        zwzl = Math.round(zwzl*10000)/10000;
+        //尺寸部分修改完成，修改明细中主瓦部分
+
+        var mxtab = document.getElementById("win5_table_2");
+        var mxtr = mxtab.getElementsByTagName("tr");
+        for(var i=0;i<mxtr.length;i++){
+            var tm = mxtr[i].getElementsByTagName("input");
+            if(tm[1].value == 1){//主瓦
+                
+                tm[4].value =  zwzl;
+                
+                win5_ddmx_numb_change(tm[0]);//修改明细后，调用明细修改事件函数，对总金额进行修改
+                break;
+            }
+        }
+    }
+
+    function win5_zw_dw_xg(){//单位修改变化时触发
+        var sel = document.getElementById("win5_td_danwei").value;
+        //遍历主瓦table，将总量修改，并修改明细表中总量，价格等
+        var zwtab = document.getElementById("win5_table_3");
+        var zwtm = zwtab.getElementsByTagName("tr");
+        for(var i=0;i<zwtm.length;i++){
+            var inp = zwtm[i].getElementsByTagName("input");
+            var kuandu = $("#win5_td_guige2").val() - 0;
+            var changdu = inp[2].value-0;
+            var numbs = inp[3].value-0;
+            if(sel == 1){//米
+                inp[4].value = Math.round(numbs*changdu*10000)/10000;
+                $("#zw5_danwei_th").html("米");
+            }else{
+                inp[4].value = Math.round(numbs*changdu*kuandu*10000)/10000;
+                $("#zw5_danwei_th").html("平方米");
+            }
+        }
+        //然后修改明细中的主瓦数量
+        var zwzl = 0;
+        var zljl = zwtab.getElementsByClassName("win5_zw_jl");
+        for(var i=0;i<zljl.length;i++){
+            console.log(zljl[i].value);
+            zwzl += (zljl[i].value - 0.0);
+        }
+        console.log(zwzl);//出现了NaN
+        zwzl = Math.round(zwzl*10000)/10000;
+        //尺寸部分修改完成，修改明细中主瓦部分
+
+        var mxtab = document.getElementById("win5_table_2");
+        var mxtr = mxtab.getElementsByTagName("tr");
+        for(var i=0;i<mxtr.length;i++){
+            var tm = mxtr[i].getElementsByTagName("input");
+            if(tm[1].value == 1){//主瓦
+                
+                tm[4].value =  zwzl;
+                
+                win5_ddmx_numb_change(tm[0]);//修改明细后，调用明细修改事件函数，对总金额进行修改
+                break;
+            }
+        }
+    }
+
+
+    function win5_mx_del(mxid){//订单修改界面 明细删除按钮 点击触发
+        $.post('dingdan_xg_mx_del',{id:mxid},function(res){
+            if(res.code != 1){
+                $.messager.show({	// show error message
+                    title: 'Error',
+                    msg: res.msg,
+                    showSpeed:2000
+                });
+            }else{
+                $.messager.show({	// show error message
+                    title: 'Success',
+                    msg: res.msg,
+                    showSpeed:2000
+                });
+                $("#win5").window("close");
+                dd_xiugai_win();
+                // $('#dg').datagrid('reload');
+            }
+        });
+    }
+    function win5_zw_del(zwid){//订单修改界面 主瓦删除按钮
+        alert("直接数量改成0即可，导出时不会出现0项");
+    }
+    function dd_del_a(){//顶部按钮 删除订单
+        var row = $('#dg').datagrid('getSelected');
+        if (row){
+            $.messager.confirm('提示','确认删除吗,该操作无法撤销',function(r){
+                if (r){
+                    $.post('dingdan_del',{id:row.id},function(res){ 
+                        if(res.code != 1){
+                            $.messager.show({	// show error message
+                                title: 'Error',
+                                msg: res.msg,
+                                showSpeed:2000
+                            });
+                        }else{
+                            $.messager.show({	// show error message
+                                title: 'Success',
+                                msg: res.msg,
+                                showSpeed:2000
+                            });
+                            // $("#win5").window("close");
+                            // dd_xiugai_win();
+                            $('#dg').datagrid('reload');
+                        }
+                    });
+                }
+            });
+        }else{
+            alert("未选择订单");
+        }
+    }
+
+    function dd_jieshou(did){//接受订单
+        
         $.post('dingdan_jieshou',{id:did},function(res){
             if(res.code != 1){
                 $.messager.show({	// show error message
@@ -368,9 +1267,10 @@
         });
     }
     function dd_quhuo(did){//订单变为已取货
-        $.messager.prompt('提货确认', '请输入取货码进行确认', function(r){
+        $.messager.prompt('提货确认', '请输入验收人姓名', function(r){
             if (r){
                 $.post('dingdan_quhuo',{id:did,qhm:r},function(res){
+                    console.log(res);
                     if(res.code != 1){
                         $.messager.show({	// show error message
                             title: 'Error',
@@ -389,8 +1289,8 @@
             }
         });
     }
-    //创建动态密码窗口
-    function wins(func){
+   
+    function wins(func){ //创建动态密码窗口
         // alert(111);
         $("#win2").window('open');
         $('#qrjz').unbind();
@@ -558,7 +1458,28 @@
     }
 
 
-
+    function dd_wj_del(){
+        $.messager.confirm('提示','确认清空缓存吗?',function(r){
+            if(r){
+                $.post('dingdan_huancun_del',function(res){
+                    if(res.code != 1){
+                        $.messager.show({	// show error message
+                            title: 'Error',
+                            msg: res.msg,
+                            showSpeed:2000
+                        });
+                    }else{
+                        $.messager.show({	// show error message
+                            title: 'Success',
+                            msg: res.msg,
+                            showSpeed:2000
+                        });
+                        $('#dg').datagrid('reload');
+                    }
+                });
+            }
+        });
+    }
 
 
 

@@ -327,7 +327,7 @@ class Qiantai{
     }
     /**
      * @return Json
-     * 订单状态修改 变为可取货，并生成取货吗
+     * 订单状态修改 取货
      */
     public function dingdan_quhuo():Json{
         #登陆状态验证
@@ -341,16 +341,11 @@ class Qiantai{
         $qhm = Request::param('qhm');
         $dd = new P_dingdan;
 
-        $res = $dd->where('id',$did)->find();
-        if($res['qhm'] == $qhm){
-            $res1 = $dd -> where('id',$did)->update(['zt'=>4]);
-            if($res1){
-                return $this->returns(1,$res,"取货成功");
-            }else{
-                return $this->returns(0,$res,"数据库错误，修改失败");
-            }
+        $res1 = $dd->where('id',$did)->update(['zt'=>4,'ysr'=>$qhm]);
+        if($res1){
+            return $this->returns(1,$res1,"取货成功");
         }else{
-            return $this->returns(2,$res,"取货码验证错误");
+            return $this->returns(0,$res1,"数据库错误，修改失败");
         }
     }
 

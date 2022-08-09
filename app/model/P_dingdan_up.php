@@ -23,5 +23,6 @@ class P_dingdan_up extends Model
     public $zw_paixu;
     public $zw_hebing;
     public $dd_id;
-    public $times2;
+    public $zw_guige2;
+    // public $times2;
 }

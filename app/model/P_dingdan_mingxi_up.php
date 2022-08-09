@@ -17,5 +17,5 @@ class P_dingdan_mingxi_up extends Model
     public $numbers;
     public $guige;
     public $danwei;
-    public $times2;
+    // public $times2;
 }

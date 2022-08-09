@@ -272,7 +272,7 @@
         });
     }
     function dd_quhuo(did){
-        $.messager.prompt('提货确认', '请输入取货码进行确认', function(r){
+        $.messager.prompt('提货确认', '请输入验收人姓名', function(r){
             if (r){
                 $.post('dingdan_quhuo',{id:did,qhm:r},function(res){
                     if(res.code != 1){
