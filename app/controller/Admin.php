@@ -534,6 +534,10 @@ class Admin{
         $writer->save($downpath.$danhao."_".time().".xlsx");
     }
 
+    public function banbentest(){
+        return json(["data"=>phpinfo()]);
+    }
+
     /**
      * *订单导出 导出文件生成
      * @return Json
