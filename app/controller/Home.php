@@ -423,7 +423,10 @@ class Home{
             'zw_yanse'=>$data['yanse'],
             'zw_paixu'=>$data['paixu'],
             'zw_hebing'=>$data['hebing'],
-            'zw_danwei' =>$data['danwei']
+            'zw_danwei' =>$data['danwei'],
+            'zw_zhonglei'=>$data['zhonglei'],
+            // 'zw_guige' =>$data['guige'],
+            // 'zw_guige2' =>$data['guige2'],
         ];
         $ddid = $dingdan->insertGetId($dddata0);#修改订单号$ddid
 
