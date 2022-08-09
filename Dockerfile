@@ -24,7 +24,6 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tencent.com/g' /etc/apk/repositorie
     php7-apache2 \
     libzip-dev \
     zip \
-    zlib1g-dev \
     && rm -f /var/cache/apk/*
 
 
