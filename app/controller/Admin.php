@@ -535,6 +535,7 @@ class Admin{
     }
 
     public function banbentest(){
+        $data = 1;
         return json(["data"=>phpinfo()]);
     }
 
