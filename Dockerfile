@@ -27,7 +27,7 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tencent.com/g' /etc/apk/repositorie
     php7-xmlrpc \
     && rm -f /var/cache/apk/*
 
-RUN  chmod -R 777 /public/static/excel/down
+RUN  chmod -R 777 /public
 
 
 # 设定工作目录
