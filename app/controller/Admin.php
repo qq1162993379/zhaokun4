@@ -619,7 +619,6 @@ class Admin{
         $new_file = $danhao."_".time().".xlsx";
 
         copy($mobanpath,$downpath.$new_file);
-
         $objReader = IOFactory::createReader('Xlsx');
         // $objReader->setReadDataOnly(TRUE);
         $objPHPExcel = $objReader->load($downpath.$new_file);
