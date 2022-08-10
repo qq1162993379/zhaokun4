@@ -25,7 +25,6 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tencent.com/g' /etc/apk/repositorie
     php7-zip \
     php7-xml \
     php7-xmlrpc \
-    php7-office \
     && rm -f /var/cache/apk/*
 
 
@@ -36,6 +35,8 @@ WORKDIR /app
 
 # 将当前目录下所有文件拷贝到/app（.dockerignore中文件除外）
 COPY . /app
+
+RUN composer require phpoffice/phpspreadsheet
 
 # 修改文件目录权限
 # 替换apache配置文件
