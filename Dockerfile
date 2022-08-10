@@ -27,7 +27,7 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tencent.com/g' /etc/apk/repositorie
     php7-xmlrpc \
     && rm -f /var/cache/apk/*
 
-RUN  chmod -R 777 /public
+
 
 
 # 设定工作目录
@@ -43,6 +43,7 @@ COPY . /app
 RUN chown -R apache:apache /app \
     && chmod -R 755 /app \
     && chmod -R 777 /app/runtime \
+    && chmod -R 777 /app/text \
    
     && cp /app/conf/httpd.conf /etc/apache2/httpd.conf \
     && cp /app/conf/php.ini /etc/php7/php.ini \
