@@ -96,6 +96,7 @@ class Home{
         }else{
             return $this->returns(1,$data);
         }
+        
     }
     /**
      * @return Json
