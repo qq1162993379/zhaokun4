@@ -203,6 +203,7 @@ class Home{
      */
     public function dingdan():Json{
         $fin =$this->getuserid();
+        ;
         if($fin==null){
             return $this->returns(3,0,"不存在用户");
         }
