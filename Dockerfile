@@ -37,7 +37,7 @@ WORKDIR /app
 # 将当前目录下所有文件拷贝到/app（.dockerignore中文件除外）
 COPY . /app
 
-RUN docker-compose require phpoffice/phpspreadsheet
+# RUN docker-compose require phpoffice/phpspreadsheet
 
 # 修改文件目录权限
 # 替换apache配置文件
