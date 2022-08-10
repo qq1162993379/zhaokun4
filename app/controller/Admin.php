@@ -614,8 +614,8 @@ class Admin{
         // return json($zw_tm);
         //加载xlsx文件
         $mobanpath = "../public/static/excel/moban.xlsx";
-        // $downpath = "../public/static/excel/down/";
-        $downpath = "./text/";
+        $downpath = "../public/static/excel/down/";
+        // $downpath = "./text/";
         $new_file = $danhao."_".time().".xlsx";
 
         copy($mobanpath,$downpath.$new_file);
