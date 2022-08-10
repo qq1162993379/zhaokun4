@@ -655,6 +655,7 @@ class Admin{
             $sheet->setCellValue("J3",$dd_yanse);
             $sheet->setCellValue("U22",$dd_ysr);
             $objPHPExcel->removeSheetByIndex(1);
+            
         }
         // $newExcel = new Spreadsheet();
         // $newExcel->addSheet($sheet);
