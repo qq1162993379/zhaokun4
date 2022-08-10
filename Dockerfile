@@ -25,7 +25,6 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.tencent.com/g' /etc/apk/repositorie
     php7-zip \
     php7-xml \
     php7-xmlrpc \
-    docker-compose \
     && rm -f /var/cache/apk/*
 
 
